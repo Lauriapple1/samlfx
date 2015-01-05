@@ -1,0 +1,9 @@
+# Apache Maceh
+/target
+
+# InteliJ IDEA
+/.idea
+*.iml
+
+# vi
+*.swp
