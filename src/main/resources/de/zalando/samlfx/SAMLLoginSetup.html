@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SAML Login Setup</title>
+</head>
+<body>
+<form id="loginForm" action="#__IDP_URI__#" method="post" style="display: none">
+    <input type="hidden" name="#__SAML_REQUEST_NAME__#" value="#__SAML_REQUEST__#" />
+    <input type="hidden" name="#__SAML_TOKEN_NAME__#" value="#__SAML_TOKEN__#" />
+    <input type="submit" value="Login" />
+</form>
+<script type="application/javascript">
+    window.onload = function(e) {
+        document.getElementById("loginForm").submit();
+    }
+</script>
+</body>
+</html>

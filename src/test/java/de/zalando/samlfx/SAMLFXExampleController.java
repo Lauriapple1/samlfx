@@ -5,6 +5,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public final class SAMLFXExampleController {
     @FXML
     public Pane loginSetupScreen;
@@ -28,7 +31,15 @@ public final class SAMLFXExampleController {
     public void login() {
         loginSetupScreen.setVisible(false);
 
-        samlLoginControl.login(loginUrl.getText());
+        final URI idpURI;
+        try {
+            idpURI = new URI(loginUrl.getText());
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException(e);
+        }
+        final SAMLProvider samlProvider = new ShibbolethProvider(idpURI);
+
+        samlLoginControl.login(samlProvider);
 
         loginScreen.setVisible(true);
     }

@@ -40,10 +40,10 @@ public final class SAMLLoginControl extends VBox {
         }
     }
 
-    public synchronized void login(final String idpURL) {
+    public synchronized void login(final SAMLProvider samlProvider) {
         close();
 
-        final SAMLSession session = new SAMLSession(idpURL, webView);
+        final SAMLSession session = new SAMLSession(samlProvider, webView);
         session.open();
         currentSession.set(Optional.of(session));
     }
