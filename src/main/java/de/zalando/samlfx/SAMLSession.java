@@ -43,7 +43,7 @@ public final class SAMLSession {
         this.loginEventHandler = loginEventHandler;
     }
 
-    public Optional<Assertion> getSamlAssertion() {
+    public Optional<Assertion> getAssertion() {
         return samlAssertion.get();
     }
 
@@ -85,6 +85,10 @@ public final class SAMLSession {
 
     private void handleInitialization(final HttpServerExchange exchange) {
         // initial setup to send POST to idp
+
+        // TODO 1: create a SAML authentication request
+        // TODO 2: decide if redirect or post binding should be used
+
         final String samlRequest = "foo";
         final String samlToken = "bar";
 
@@ -103,12 +107,17 @@ public final class SAMLSession {
     }
 
     private void handleFakeIdp(final HttpServerExchange exchange) throws IOException {
+        // TODO remove method, only for initial development
         LOG.info("generating fake response like a true fake identity provider");
 
         final FormData formData = FormParserFactory.builder().build().createParser(exchange).parseBlocking();
 
         final String samlRequestEncoded = formData.getFirst("SAMLRequest").getValue();
         final String relayState = formData.getFirst("RelayState").getValue();
+
+        // TODO 1: parse request
+        // TODO 2: generate fake response
+        // TODO 3: send response
 
         String fakeHtml = loadHtml("SAMLFakeLogin.html");
         fakeHtml = fakeHtml.replace("#__SAML_RESEPONSE__#", "foo");
@@ -121,9 +130,12 @@ public final class SAMLSession {
     private void handleResponse(final HttpServerExchange exchange) {
         // idp response to us with the SAML assertion
 
-        // TODO parse assertion
+        // TODO 1: get raw data from form values like SAMLResponse and RelayState
+        // TODO 2: parse SAML response (base64, xml)
+        // TODO 3: (optional) validate assertion (expiration, signing?)
+
         final Assertion assertion = null;
-        //samlAssertion.set(Optional.of(assertion));
+        // TODO samlAssertion.set(Optional.of(assertion));
 
         LOG.info("user authenticated; triggering login event");
         new Thread(() -> {
@@ -148,76 +160,4 @@ public final class SAMLSession {
 
         return sb.toString();
     }
-
-    /*
-    private void doAuthenticationRedirect(final HttpServletResponse response, final HttpSession currentSession, final String gotoURL, final SAMLMetaData metaData) throws IllegalArgumentException, SecurityException, IllegalAccessException {
-        AuthnRequest authnRequest = generateAuthnRequest(metaData);
-
-        SAMLUtil.logSAMLObject(authnRequest);
-
-        // Save the request ID to session for future validation
-        currentSession.setAttribute("AuthnRequestID", authnRequest.getID());
-        currentSession.setAttribute("goto", gotoURL);
-
-        HttpServletResponseAdapter responseAdapter = new HttpServletResponseAdapter(response, true);
-        BasicSAMLMessageContext<SAMLObject, AuthnRequest, SAMLObject> context = new BasicSAMLMessageContext<SAMLObject, AuthnRequest, SAMLObject>();
-        context.setPeerEntityEndpoint(getEndpointFromMetaData());
-        context.setOutboundSAMLMessage(authnRequest);
-        context.setOutboundSAMLMessageSigningCredential(getSigningCredential());
-        context.setOutboundMessageTransport(responseAdapter);
-
-        HTTPRedirectDeflateEncoder encoder = new HTTPRedirectDeflateEncoder();
-
-        try {
-            encoder.encode(context);
-        } catch (MessageEncodingException e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
-    private AuthnRequest generateAuthnRequest(final SAMLMetaData metaData) throws IllegalArgumentException, SecurityException, IllegalAccessException {
-
-        AuthnRequest authnRequest = SAMLUtil.buildSAMLObjectWithDefaultName(AuthnRequest.class);
-
-        authnRequest.setForceAuthn(true);
-        authnRequest.setIsPassive(false);
-        authnRequest.setIssueInstant(new DateTime());
-        for (SingleSignOnService sss : metaData.getIdpEntityDescriptor().getIDPSSODescriptor(SAMLConstants.SAML20P_NS).getSingleSignOnServices()) {
-            if (sss.getBinding().equals(SAMLConstants.SAML2_REDIRECT_BINDING_URI)) {
-                authnRequest.setDestination(sss.getLocation());
-            }
-        }
-        authnRequest.setProtocolBinding(SAMLConstants.SAML2_ARTIFACT_BINDING_URI);
-
-        String deployURL = getDeployURL();
-        if (deployURL.charAt(deployURL.length() - 1) == '/') {
-            deployURL = deployURL.substring(0, deployURL.length() - 1);
-        }
-        authnRequest.setAssertionConsumerServiceURL(deployURL + SAMLMetaData.CONSUMER_PATH);
-
-        authnRequest.setID(SAMLUtil.getSecureRandomIdentifier());
-
-        Issuer issuer = SAMLUtil.buildSAMLObjectWithDefaultName(Issuer.class);
-        issuer.setValue(getSPEntityId());
-        authnRequest.setIssuer(issuer);
-
-        NameIDPolicy nameIDPolicy = SAMLUtil.buildSAMLObjectWithDefaultName(NameIDPolicy.class);
-        nameIDPolicy.setSPNameQualifier(getSPEntityId());
-        nameIDPolicy.setAllowCreate(true);
-        nameIDPolicy.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
-
-        authnRequest.setNameIDPolicy(nameIDPolicy);
-
-        RequestedAuthnContext requestedAuthnContext = SAMLUtil.buildSAMLObjectWithDefaultName(RequestedAuthnContext.class);
-        requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.MINIMUM);
-
-        AuthnContextClassRef authnContextClassRef = SAMLUtil.buildSAMLObjectWithDefaultName(AuthnContextClassRef.class);
-        authnContextClassRef.setAuthnContextClassRef("urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport");
-
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
-        authnRequest.setRequestedAuthnContext(requestedAuthnContext);
-
-        return authnRequest;
-    }
-    */
 }
