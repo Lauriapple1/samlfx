@@ -1,4 +1,4 @@
 <?import javafx.scene.web.WebView?>
-<fx:root type="javafx.scene.layout.VBox" xmlns:fx="http://javafx.com/fxml">
+<fx:root type="javafx.scene.control.ScrollPane" xmlns:fx="http://javafx.com/fxml">
     <WebView fx:id="webView"/>
 </fx:root>

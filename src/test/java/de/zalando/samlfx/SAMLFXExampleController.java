@@ -19,7 +19,7 @@ public final class SAMLFXExampleController {
     public Pane loginScreen;
 
     @FXML
-    private SAMLLoginControl samlLoginControl;
+    private SAMLLogin samlLogin;
 
     @FXML
     public Pane finalScreen;
@@ -37,18 +37,23 @@ public final class SAMLFXExampleController {
         } catch (URISyntaxException e) {
             throw new IllegalStateException(e);
         }
-        final SAMLProvider samlProvider = new ShibbolethProvider(idpURI);
+        final SAMLProvider samlProvider = new FakeProvider(idpURI);
 
-        samlLoginControl.login(samlProvider);
+        samlLogin.login(samlProvider);
 
         loginScreen.setVisible(true);
     }
 
-    public void loginSuccessful() {
+    @FXML
+    public void loginSuccessful(final SAMLLoginEvent loginEvent) {
         loginScreen.setVisible(false);
 
-        // TODO set credentials in label
-        subjectLabel.setText("Unknown");
+        if (loginEvent.getAssertion() == null) {
+            // TODO remove, should never happen, else use optional
+            subjectLabel.setText("-unknown-");
+        } else {
+            subjectLabel.setText(loginEvent.getAssertion().getSubject().getNameID().getValue());
+        }
         finalScreen.setVisible(true);
     }
 
@@ -57,4 +62,5 @@ public final class SAMLFXExampleController {
         finalScreen.setVisible(false);
         loginSetupScreen.setVisible(true);
     }
+
 }

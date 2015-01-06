@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SAML Fake Login</title>
+</head>
+<body>
+<h1>Fake Identity Provider</h1>
+<form id="loginForm" action="/SAML2/SSO/POST" method="post">
+    <input type="hidden" name="SAMLResponse" value="#__SAML_RESEPONSE__#" />
+    <input type="hidden" name="RelayState" value="#__SAML_TOKEN__#" />
+    <input type="submit" value="Login!" />
+</form>
+</body>
+</html>
